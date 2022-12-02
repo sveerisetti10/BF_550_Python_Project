@@ -1,0 +1,117 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import skbio 
+import seaborn as sns
+sns.set()
+import scipy.stats as stats
+from skbio.stats import subsample_counts
+
+data = pd.read_csv('/Users/sveerisetti/Desktop/interesting.csv').dropna(1)
+data.rename(columns = {'Sample ID':'Sample_ID', 'Total 16S copies':'Total_16s_Reads'}, inplace=True)
+
+
+#For Day  Formation
+conditions = [
+    (data['Sample_ID'].str.contains("D0")),
+    (data['Sample_ID'].str.contains("D1")),
+    (data['Sample_ID'].str.contains("D2")),
+    (data['Sample_ID'].str.contains("D3")),
+    (data['Sample_ID'].str.contains("D4")),
+    (data['Sample_ID'].str.contains("D5")),
+    (data['Sample_ID'].str.contains("D6")),
+    (data['Sample_ID'].str.contains("D7")),
+    
+    ]
+
+# create a list of the values we want to assign for each condition
+values = ["0", "1", '2', '3', '4', '5', '6', '7']
+
+# create a new column and use np.select to assign values to it using our lists as arguments
+data['Day'] = np.select(conditions, values)
+Day = data.Day
+
+
+#For Control/Treatment Group Formation
+conditions = [
+    (data['Sample_ID'].str.contains("C") & data['Sample_ID'].str.contains("D1")),
+    (data['Sample_ID'].str.contains("T") & data['Sample_ID'].str.contains("D1")), 
+    (data['Sample_ID'].str.contains("C") & data['Sample_ID'].str.contains("D2")),
+    (data['Sample_ID'].str.contains("T") & data['Sample_ID'].str.contains("D2")), 
+    (data['Sample_ID'].str.contains("C") & data['Sample_ID'].str.contains("D3")),
+    (data['Sample_ID'].str.contains("T") & data['Sample_ID'].str.contains("D3")), 
+    (data['Sample_ID'].str.contains("C") & data['Sample_ID'].str.contains("D4")),
+    (data['Sample_ID'].str.contains("T") & data['Sample_ID'].str.contains("D4")),
+    (data['Sample_ID'].str.contains("C") & data['Sample_ID'].str.contains("D5")),
+    (data['Sample_ID'].str.contains("T") & data['Sample_ID'].str.contains("D5")),
+    (data['Sample_ID'].str.contains("C") & data['Sample_ID'].str.contains("D6")),
+    (data['Sample_ID'].str.contains("T") & data['Sample_ID'].str.contains("D6")), 
+    (data['Sample_ID'].str.contains("C") & data['Sample_ID'].str.contains("D7")),
+    (data['Sample_ID'].str.contains("T") & data['Sample_ID'].str.contains("D7")),  
+    ]
+
+# create a list of the values we want to assign for each condition
+values = ["Control1", "Treatment1", "Control2", "Treatment2", "Control3", "Treatment3", "Control4", "Treatment4", "Control5", "Treatment5", 
+         "Control6", "Treatment6", "Control7", "Treatment7"]
+
+# create a new column and use np.select to assign values to it using our lists as arguments
+data['Group'] = np.select(conditions, values)
+
+data
+
+
+# Get the bee number
+data['Bee'] = data.Sample_ID.apply(lambda x: x.split('_')[0][1:])
+data = data.set_index('Sample_ID')
+group = data.Group
+
+data
+
+
+
+data = data.drop(['Group'], axis = 1)
+data = data.drop(['Day'], axis = 1)
+data = data.drop(['Bee'], axis = 1)
+data = data.drop(['Total_16s_Reads'], axis = 1)
+
+data
+
+
+
+data['Shannon_Index'] = data.apply(skbio.diversity.alpha.shannon, axis=1)
+data
+
+
+data = pd.concat([data, group], axis=1)
+data['Sample_ID'] = data.index
+
+
+data.iloc[[72,73,74,75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85],[15]] = 'Control0'
+
+data.iloc[[85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100],[15]] = 'Treatment0'
+
+data.iloc[[71],[15]] = 'Control0'
+
+#For Control/Treatment Group Formation
+conditions = [
+    (data['Sample_ID'].str.contains("C")),
+    (data['Sample_ID'].str.contains("T"))
+    ]
+
+# create a list of the values we want to assign for each condition
+values = ["C", "T"]
+
+# create a new column and use np.select to assign values to it using our lists as arguments
+data['Variable'] = np.select(conditions, values)
+
+data
+
+figure = sns.boxplot(data= data, x= "Group", y= "Shannon_Index", hue = 'Variable', dodge=False, order=["Control0", "Treatment0", "Control3", "Treatment3", 'Control5', 'Treatment5' ,'Control7', 'Treatment7'])
+figure.set_xlabel("Group", fontsize=14)
+figure.set_ylabel("Shannon H Index", fontsize=14)
+figure.set(ylim=(0, 3.2))
+
+
+figure.figsize:(30,8.27)
+
+
