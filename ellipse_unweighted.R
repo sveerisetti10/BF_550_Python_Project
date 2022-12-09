@@ -1,3 +1,4 @@
+
 #Sriramteja Veerisetti
 #Ellipse Unweighted
 
@@ -8,7 +9,7 @@ library(ggforce)
 #install.packages("plotly")
 library(plotly)
 
-pca_data <- read_csv('/Users/sveerisetti/Desktop/ye.csv')
+pca_data <- read_csv('/Users/sveerisetti/Desktop/Import/pca_data_unweighted.csv')
 pca_data <- pca_data[, -1]
 
 Variable <- pca_data$Variable 
@@ -20,7 +21,14 @@ PCA <- pca_data %>%
   geom_mark_ellipse(aes(fill = Variable,label = Variable),
                     expand = unit(0.5,"mm"),
                     label.buffer = unit(-5, 'mm'))+
+  xlab('PC1 -Percent variation explained 17.634%')+
+  ylab('PC2 -Percent variation explained 9.9729%')+
   xlim(-0.5, 0.5)+
   ylim(-0.3, 0.4)
 
 PCA
+  
+  
+  
+
+
