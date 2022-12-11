@@ -24,7 +24,8 @@ PCA <- pca_data %>%
   xlab('PC1 -Percent variation explained 17.634%')+
   ylab('PC2 -Percent variation explained 9.9729%')+
   xlim(-0.5, 0.5)+
-  ylim(-0.3, 0.4)
+  ylim(-0.3, 0.4)+
+  ggtitle('PCoA- Unweighted UniFrac')
 
 PCA
   
